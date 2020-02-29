@@ -1,3 +1,3 @@
-import SeeMore from './src/SeeMore/SeeMore';
+import SeeMore from './src/SeeMore';
 
 export default SeeMore;
