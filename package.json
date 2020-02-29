@@ -1,0 +1,45 @@
+{
+  "name": "react-native-see-more-inline",
+  "version": "0.0.1",
+  "description": "Show a \"read more\", \"see more\", \"read less\", \"see less\" inline with your text in React Native",
+  "main": "index.js",
+  "repository": "git@github.com:kashishgrover/react-native-see-more-inline.git",
+  "author": "Kashish Grover <kashishgrover95@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "commit": "git-cz"
+  },
+  "devDependencies": {
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.1.0",
+    "cz-emoji": "^1.2.1",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react-hooks": "^1.7.0",
+    "husky": "^4.2.3",
+    "prettier-eslint": "^9.0.1",
+    "react-native": "^0.61.5",
+    "react": "^16.9.0"
+  },
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "prop-types": "^15.7.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx eslint ."
+    }
+  }
+}
