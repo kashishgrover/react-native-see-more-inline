@@ -20,17 +20,18 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "husky": "^4.2.3",
+    "metro-react-native-babel-preset": "^0.58.0",
     "prettier-eslint": "^9.0.1",
-    "react-native": "^0.61.5",
-    "react": "^16.9.0"
+    "react": "^16.9.0",
+    "react-native": "^0.61.5"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
   },
   "peerDependencies": {
+    "prop-types": "^15.7.2",
     "react": "*",
-    "react-native": "*",
-    "prop-types": "^15.7.2"
+    "react-native": "*"
   },
   "config": {
     "commitizen": {

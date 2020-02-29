@@ -1,1 +1,10 @@
+# Logs
+*.log
+
+# Runtime data
+tmp
+build
+dist
+
+# Dependency directory
 node_modules
