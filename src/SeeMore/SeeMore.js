@@ -36,14 +36,12 @@ class SeeMore extends React.Component {
   }
 
   calculateTotalTextWidth = async () => {
-    const {
-      children, fontSize, fontFamily, fontWeight,
-    } = this.props;
+    const { children, style } = this.props;
     const size = await reactNativeTextSize.measure({
       text: children,
-      fontSize,
-      fontFamily,
-      fontWeight,
+      fontSize: style.fontSize,
+      fontFamily: style.fontFamily,
+      fontWeight: style.fontWeight,
     });
     this.setState({ totalTextWidth: size.width });
   };
@@ -77,7 +75,16 @@ class SeeMore extends React.Component {
     const {
       isLinkPressed, isShowingMore, totalTextWidth, textWidthLimit,
     } = this.state;
-    const { children, numberOfLines } = this.props;
+
+    const {
+      children,
+      numberOfLines,
+      linkPressedColor,
+      linkColor,
+      seeMoreText,
+      seeLessText,
+      linkBackgroundColor,
+    } = this.props;
 
     if (!textWidthLimit || !totalTextWidth) {
       return null;
@@ -92,21 +99,21 @@ class SeeMore extends React.Component {
               <Text
                 {...this.props}
                 {...this.readMorePanResponder.panHandlers}
-                style={{ color: isLinkPressed ? 'blue' : 'green' }}
+                style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
               >
-                {'   see less'}
+                {`  ${seeLessText}`}
               </Text>
             ) : null}
           </Text>
           {!isShowingMore ? (
-            <Text style={styles.seeMoreText}>
+            <Text style={[styles.seeMoreText, { backgroundColor: linkBackgroundColor }]}>
               <Text {...this.props}>...</Text>
               <Text
                 {...this.props}
                 {...this.readMorePanResponder.panHandlers}
-                style={{ color: isLinkPressed ? 'blue' : 'green' }}
+                style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
               >
-                {'   see more'}
+                {`  ${seeMoreText}`}
               </Text>
             </Text>
           ) : null}
@@ -120,7 +127,6 @@ class SeeMore extends React.Component {
 
 const styles = StyleSheet.create({
   seeMoreText: {
-    backgroundColor: 'white',
     position: 'absolute',
     bottom: 0,
     right: 0,
@@ -130,26 +136,26 @@ const styles = StyleSheet.create({
 SeeMore.propTypes = {
   children: PropTypes.string.isRequired,
   numberOfLines: PropTypes.number.isRequired,
-  fontSize: PropTypes.number.isRequired,
-  fontWeight: PropTypes.oneOf([
-    'normal',
-    'bold',
-    '100',
-    '200',
-    '300',
-    '400',
-    '500',
-    '600',
-    '700',
-    '800',
-    '900',
-  ]).isRequired,
-  fontFamily: PropTypes.string,
   offset: PropTypes.number.isRequired,
+  linkColor: PropTypes.string,
+  linkPressedColor: PropTypes.string,
+  linkBackgroundColor: PropTypes.string,
+  seeMoreText: PropTypes.string,
+  seeLessText: PropTypes.string,
+  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
 SeeMore.defaultProps = {
-  fontFamily: undefined,
+  linkColor: '#2E75F0',
+  linkPressedColor: '#163772',
+  seeMoreText: 'see more',
+  seeLessText: 'see less',
+  linkBackgroundColor: '#ffffff',
+  style: {
+    fontFamily: undefined,
+    fontSize: 14,
+    fontWeight: '300',
+  },
 };
 
 export default SeeMore;

@@ -11,27 +11,24 @@ const LOREM_IPSUM_MEDIUM = 'Lorem ipsum dolor sit amet, consectetur adipiscing e
 
 const LOREM_IPSUM_SMALL = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pellentesque aliquam leo nec venenatis.';
 
-const Header = () => <View style={styles.header} />;
-
 const App = () => (
   <SafeAreaView style={styles.root}>
-    <Header />
     <View style={styles.container}>
       <>
         <Text style={styles.title}>Lorem Ipsum Large</Text>
-        <SeeMore fontWeight="normal" fontSize={12} offset={32} numberOfLines={4}>
+        <SeeMore offset={32} numberOfLines={4}>
           {LOREM_IPSUM_LARGE}
         </SeeMore>
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Medium</Text>
-        <SeeMore fontWeight="normal" fontSize={12} offset={32} numberOfLines={2}>
+        <SeeMore offset={32} numberOfLines={2}>
           {LOREM_IPSUM_MEDIUM}
         </SeeMore>
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Small</Text>
-        <SeeMore fontWeight="normal" fontSize={12} offset={32} numberOfLines={2}>
+        <SeeMore offset={32} numberOfLines={2}>
           {LOREM_IPSUM_SMALL}
         </SeeMore>
       </>
@@ -42,10 +39,6 @@ const App = () => (
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  header: {
-    height: 48,
-    borderWidth: 1,
   },
   container: {
     paddingHorizontal: 16,
