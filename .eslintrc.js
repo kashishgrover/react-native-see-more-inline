@@ -16,6 +16,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['react'],
+  parser: "babel-eslint",
   rules: {
     'react/jsx-props-no-spreading': ['off'],
     'react/jsx-filename-extension': ['off'],
