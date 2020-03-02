@@ -16,7 +16,7 @@ const App = () => (
     <View style={styles.container}>
       <>
         <Text style={styles.title}>Lorem Ipsum Large</Text>
-        <SeeMore offset={64} numberOfLines={4}>
+        <SeeMore numberOfLines={4}>
           {LOREM_IPSUM_LARGE}
         </SeeMore>
       </>

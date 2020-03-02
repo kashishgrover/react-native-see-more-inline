@@ -1,5 +1,7 @@
 import React from 'react';
-import { Text, PanResponder, Dimensions } from 'react-native';
+import {
+  Text, PanResponder, Dimensions, View,
+} from 'react-native';
 import reactNativeTextSize from 'react-native-text-size';
 import PropTypes from 'prop-types';
 
@@ -19,34 +21,34 @@ class SeeMore extends React.Component {
       isLinkPressed: false,
       isShowingMore: false,
       truncationIndex: undefined,
-      textWidthLimit: this.getTextWidthLimit(),
+      containerWidth: undefined,
     };
   }
 
-  componentDidMount() {
-    this.findTruncationIndex();
-    Dimensions.addEventListener('change', this.handleDimensionChange);
+  async componentDidMount() {
+    Dimensions.addEventListener('change', this.setContainerWidth);
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this.handleDimensionChange);
+    Dimensions.removeEventListener('change', this.setContainerWidth);
   }
 
-  setTextWidthLimit = async () => {
-    this.setState({ textWidthLimit: this.getTextWidthLimit() });
+  setContainerWidth = async () => {
+    const { containerWidth } = this.state;
+    this.viewRef.measure((ox, oy, width) => {
+      if (width !== containerWidth) {
+        this.setState({ containerWidth: width }, () => this.findTruncationIndex());
+      }
+    });
   };
 
-  getTextWidthLimit() {
-    const { numberOfLines, offset } = this.props;
-    return numberOfLines * (Dimensions.get('window').width - offset);
-  }
-
   findTruncationIndex = async () => {
-    const { textWidthLimit } = this.state;
+    const { containerWidth } = this.state;
     const {
       children: text,
       style: { fontSize, fontFamily, fontWeight },
       seeMoreText,
+      numberOfLines,
     } = this.props;
 
     const { width: textWidth } = await reactNativeTextSize.measure({
@@ -56,19 +58,21 @@ class SeeMore extends React.Component {
       fontWeight,
     });
 
+    const textWidthLimit = containerWidth * numberOfLines;
+
     if (textWidth < textWidthLimit) {
       this.setState({ truncationIndex: undefined });
       return;
     }
 
-    const { width: readMoreWidth } = await reactNativeTextSize.measure({
+    const { width: seeMoreTextWidth } = await reactNativeTextSize.measure({
       text: ` ...${seeMoreText}`,
       fontSize,
       fontFamily,
       fontWeight,
     });
 
-    const truncatedWidth = textWidthLimit - readMoreWidth;
+    const truncatedWidth = textWidthLimit - 2 * seeMoreTextWidth;
 
     let truncationIndex = 0;
     let start = 0;
@@ -83,7 +87,7 @@ class SeeMore extends React.Component {
         fontFamily,
         fontWeight,
       });
-      if (Math.abs(truncatedWidth - partialWidth) <= 5) {
+      if (Math.abs(truncatedWidth - partialWidth) <= 10) {
         truncationIndex = middle;
         break;
       } else if (partialWidth > truncatedWidth) {
@@ -97,7 +101,6 @@ class SeeMore extends React.Component {
   };
 
   handleDimensionChange = async () => {
-    await this.setTextWidthLimit();
     this.findTruncationIndex();
   };
 
@@ -134,28 +137,45 @@ class SeeMore extends React.Component {
 
     if (truncationIndex) {
       return (
-        <Text numberOfLines={isShowingMore ? undefined : numberOfLines}>
-          <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
-          {isShowingMore ? null : <Text {...this.props}>...</Text>}
-          <Text
-            {...this.props}
-            {...this.panResponder.panHandlers}
-            style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
-          >
-            {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
+        <>
+          <View
+            ref={(ref) => {
+              this.viewRef = ref;
+            }}
+            onLayout={this.setContainerWidth}
+          />
+          <Text {...this.props} numberOfLines={isShowingMore ? undefined : numberOfLines}>
+            <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
+            {isShowingMore ? null : <Text {...this.props}>...</Text>}
+            <Text
+              {...this.props}
+              {...this.panResponder.panHandlers}
+              style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
+            >
+              {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
+            </Text>
           </Text>
-        </Text>
+        </>
       );
     }
 
-    return <Text {...this.props}>{text}</Text>;
+    return (
+      <>
+        <View
+          ref={(ref) => {
+            this.viewRef = ref;
+          }}
+          onLayout={this.setContainerWidth}
+        />
+        <Text {...this.props}>{text}</Text>
+      </>
+    );
   }
 }
 
 SeeMore.propTypes = {
   children: PropTypes.string.isRequired,
   numberOfLines: PropTypes.number.isRequired,
-  offset: PropTypes.number.isRequired,
   linkColor: PropTypes.string,
   linkPressedColor: PropTypes.string,
   linkBackgroundColor: PropTypes.string,
