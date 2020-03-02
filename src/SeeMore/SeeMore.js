@@ -178,7 +178,6 @@ SeeMore.propTypes = {
   numberOfLines: PropTypes.number.isRequired,
   linkColor: PropTypes.string,
   linkPressedColor: PropTypes.string,
-  linkBackgroundColor: PropTypes.string,
   seeMoreText: PropTypes.string,
   seeLessText: PropTypes.string,
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
@@ -189,7 +188,6 @@ SeeMore.defaultProps = {
   linkPressedColor: '#163772',
   seeMoreText: 'see more',
   seeLessText: 'see less',
-  linkBackgroundColor: '#ffffff',
   style: {
     fontFamily: undefined,
     fontSize: 14,

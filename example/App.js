@@ -22,13 +22,13 @@ const App = () => (
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Medium</Text>
-        <SeeMore offset={64} numberOfLines={2}>
+        <SeeMore numberOfLines={2}>
           {LOREM_IPSUM_MEDIUM}
         </SeeMore>
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Small</Text>
-        <SeeMore offset={64} numberOfLines={2}>
+        <SeeMore numberOfLines={2}>
           {LOREM_IPSUM_SMALL}
         </SeeMore>
       </>

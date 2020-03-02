@@ -2,9 +2,33 @@
 
 Show a "read more", "see more", "read less", "see less" inline with your text in React Native
 
+![](./images/screenshot1.png)
+![](./images/screenshot2.png)
+![](./images/screenshot3.png)
+
 ## Installing the package
 1. Install [`react-native-text-size` v4.0.0-rc.1](https://github.com/aMarCruz/react-native-text-size)
 2. `yarn add react-native-see-more-inline` or `npm install --save-dev react-native-see-more-inline`
+
+## Usage
+```
+import SeeMore from 'react-native-see-more-inline';
+
+<SeeMore numberOfLines={2}>
+  {VERY_LARGE_TEXT}
+</SeeMore>
+```
+
+### Props
+| Prop             | Default Value | Required | Type   |
+|------------------|---------------|----------|--------|
+| numberOfLines    | -                                                            | yes | number       |
+| linkColor        | '#2E75F0'                                                    | no  | string       |
+| linkPressedColor | '#163772'                                                    | no  | string       |
+| seeMoreText      | 'see more'                                                   | no  | string       |
+| seeLessText      | 'see less'                                                   | no  | string       |
+| style            | `{ fontFamily: undefined, fontSize: 14, fontWeight: '300' }` | no  | array/object |
+
 
 ## Running the example
 1. `cd example`
@@ -12,7 +36,3 @@ Show a "read more", "see more", "read less", "see less" inline with your text in
 3. Terminal 1 - `yarn run start`
 4. Terminal 2 - `yarn run wml`
 5. Terminal 3 - `yarn run ios` / `yarn run android`
-
-![](./images/screenshot1.png)
-![](./images/screenshot2.png)
-![](./images/screenshot3.png)
