@@ -2,6 +2,8 @@
 
 Show a "read more", "see more", "read less", "see less" inline with your text in React Native
 
+>My motivation of building this was that I couldn't find any library/implementation that would place the "see more" link inline with the text. All the other implementations I found would place the link under the text. This package uses text width, and using a simple binary search it (almost) accurately calculates where it should place the "see more" link.
+
 ![](./images/screenshot1.png)
 ![](./images/screenshot2.png)
 ![](./images/screenshot3.png)
