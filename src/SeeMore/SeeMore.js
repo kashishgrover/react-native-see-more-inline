@@ -1,12 +1,10 @@
 import React from 'react';
-import {
-  Text, PanResponder, Dimensions, View, StyleSheet,
-} from 'react-native';
+import { Text, PanResponder, Dimensions } from 'react-native';
 import reactNativeTextSize from 'react-native-text-size';
 import PropTypes from 'prop-types';
 
 class SeeMore extends React.Component {
-  readMorePanResponder = PanResponder.create({
+  panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderTerminationRequest: () => true,
     onPanResponderGrant: () => this.handleLinkPressed(),
@@ -20,35 +18,87 @@ class SeeMore extends React.Component {
     this.state = {
       isLinkPressed: false,
       isShowingMore: false,
-      totalTextWidth: 0,
-      textWidthLimit: 0,
+      truncationIndex: undefined,
+      textWidthLimit: this.getTextWidthLimit(),
     };
   }
 
   componentDidMount() {
-    this.calculateTotalTextWidth();
-    this.calculateTextWidthLimit();
-    Dimensions.addEventListener('change', this.calculateTextWidthLimit);
+    this.findTruncationIndex();
+    Dimensions.addEventListener('change', this.handleDimensionChange);
   }
 
   componentWillUnmount() {
-    Dimensions.removeEventListener('change', this.calculateTextWidthLimit);
+    Dimensions.removeEventListener('change', this.handleDimensionChange);
   }
 
-  calculateTotalTextWidth = async () => {
-    const { children, style } = this.props;
-    const size = await reactNativeTextSize.measure({
-      text: children,
-      fontSize: style.fontSize,
-      fontFamily: style.fontFamily,
-      fontWeight: style.fontWeight,
-    });
-    this.setState({ totalTextWidth: size.width });
+  setTextWidthLimit = async () => {
+    this.setState({ textWidthLimit: this.getTextWidthLimit() });
   };
 
-  calculateTextWidthLimit = () => {
+  getTextWidthLimit() {
     const { numberOfLines, offset } = this.props;
-    this.setState({ textWidthLimit: numberOfLines * (Dimensions.get('window').width - offset) });
+    return numberOfLines * (Dimensions.get('window').width - offset);
+  }
+
+  findTruncationIndex = async () => {
+    const { textWidthLimit } = this.state;
+    const {
+      children: text,
+      style: { fontSize, fontFamily, fontWeight },
+      seeMoreText,
+    } = this.props;
+
+    const { width: textWidth } = await reactNativeTextSize.measure({
+      text,
+      fontSize,
+      fontFamily,
+      fontWeight,
+    });
+
+    if (textWidth < textWidthLimit) {
+      this.setState({ truncationIndex: undefined });
+      return;
+    }
+
+    const { width: readMoreWidth } = await reactNativeTextSize.measure({
+      text: ` ...${seeMoreText}`,
+      fontSize,
+      fontFamily,
+      fontWeight,
+    });
+
+    const truncatedWidth = textWidthLimit - readMoreWidth;
+
+    let truncationIndex = 0;
+    let start = 0;
+    let end = text.length - 1;
+
+    while (start <= end) {
+      const middle = start + (end - start) / 2;
+      // eslint-disable-next-line no-await-in-loop
+      const { width: partialWidth } = await reactNativeTextSize.measure({
+        text: text.slice(0, middle),
+        fontSize,
+        fontFamily,
+        fontWeight,
+      });
+      if (Math.abs(truncatedWidth - partialWidth) <= 5) {
+        truncationIndex = middle;
+        break;
+      } else if (partialWidth > truncatedWidth) {
+        end = middle - 1;
+      } else {
+        start = middle + 1;
+      }
+    }
+
+    this.setState({ truncationIndex: Math.floor(truncationIndex) });
+  };
+
+  handleDimensionChange = async () => {
+    await this.setTextWidthLimit();
+    this.findTruncationIndex();
   };
 
   handleLinkPressed() {
@@ -72,66 +122,35 @@ class SeeMore extends React.Component {
   }
 
   render() {
+    const { isLinkPressed, isShowingMore, truncationIndex } = this.state;
     const {
-      isLinkPressed, isShowingMore, totalTextWidth, textWidthLimit,
-    } = this.state;
-
-    const {
-      children,
+      children: text,
       numberOfLines,
-      linkPressedColor,
       linkColor,
+      linkPressedColor,
       seeMoreText,
       seeLessText,
-      linkBackgroundColor,
     } = this.props;
 
-    if (!textWidthLimit || !totalTextWidth) {
-      return null;
-    }
-
-    if (totalTextWidth > textWidthLimit) {
+    if (truncationIndex) {
       return (
-        <View>
-          <Text numberOfLines={isShowingMore ? undefined : numberOfLines}>
-            <Text {...this.props}>{children}</Text>
-            {isShowingMore ? (
-              <Text
-                {...this.props}
-                {...this.readMorePanResponder.panHandlers}
-                style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
-              >
-                {`  ${seeLessText}`}
-              </Text>
-            ) : null}
+        <Text numberOfLines={isShowingMore ? undefined : numberOfLines}>
+          <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
+          {isShowingMore ? null : <Text {...this.props}>...</Text>}
+          <Text
+            {...this.props}
+            {...this.panResponder.panHandlers}
+            style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
+          >
+            {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
           </Text>
-          {!isShowingMore ? (
-            <Text style={[styles.seeMoreText, { backgroundColor: linkBackgroundColor }]}>
-              <Text {...this.props}>...</Text>
-              <Text
-                {...this.props}
-                {...this.readMorePanResponder.panHandlers}
-                style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
-              >
-                {`  ${seeMoreText}`}
-              </Text>
-            </Text>
-          ) : null}
-        </View>
+        </Text>
       );
     }
 
-    return <Text {...this.props}>{children}</Text>;
+    return <Text {...this.props}>{text}</Text>;
   }
 }
-
-const styles = StyleSheet.create({
-  seeMoreText: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-  },
-});
 
 SeeMore.propTypes = {
   children: PropTypes.string.isRequired,

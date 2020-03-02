@@ -16,19 +16,19 @@ const App = () => (
     <View style={styles.container}>
       <>
         <Text style={styles.title}>Lorem Ipsum Large</Text>
-        <SeeMore offset={32} numberOfLines={4}>
+        <SeeMore offset={64} numberOfLines={4}>
           {LOREM_IPSUM_LARGE}
         </SeeMore>
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Medium</Text>
-        <SeeMore offset={32} numberOfLines={2}>
+        <SeeMore offset={64} numberOfLines={2}>
           {LOREM_IPSUM_MEDIUM}
         </SeeMore>
       </>
       <>
         <Text style={styles.title}>Lorem Ipsum Small</Text>
-        <SeeMore offset={32} numberOfLines={2}>
+        <SeeMore offset={64} numberOfLines={2}>
           {LOREM_IPSUM_SMALL}
         </SeeMore>
       </>
