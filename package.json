@@ -12,7 +12,8 @@
     "read more",
     "see less",
     "see more",
-    "javascript"
+    "javascript",
+    "binary search"
   ],
   "scripts": {
     "commit": "git-cz"
