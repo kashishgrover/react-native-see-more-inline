@@ -16,4 +16,3 @@ Show a "read more", "see more", "read less", "see less" inline with your text in
 ![](./images/screenshot1.png)
 ![](./images/screenshot2.png)
 ![](./images/screenshot3.png)
-![](./images/screenshot4.png)
