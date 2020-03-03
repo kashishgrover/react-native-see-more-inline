@@ -25,15 +25,23 @@ class SeeMore extends React.Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     Dimensions.addEventListener('change', this.setContainerWidth);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.truncationIndex) {
+      return true;
+    }
+
+    return false;
   }
 
   componentWillUnmount() {
     Dimensions.removeEventListener('change', this.setContainerWidth);
   }
 
-  setContainerWidth = async () => {
+  setContainerWidth = () => {
     const { containerWidth } = this.state;
     this.viewRef.measure((ox, oy, width) => {
       if (width !== containerWidth) {
@@ -98,10 +106,6 @@ class SeeMore extends React.Component {
     }
 
     this.setState({ truncationIndex: Math.floor(truncationIndex) });
-  };
-
-  handleDimensionChange = async () => {
-    this.findTruncationIndex();
   };
 
   handleLinkPressed() {
