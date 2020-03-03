@@ -1,9 +1,8 @@
 import React from 'react';
-import {
-  Text, PanResponder, Dimensions, View,
-} from 'react-native';
+import { Text, PanResponder } from 'react-native';
 import reactNativeTextSize from 'react-native-text-size';
 import PropTypes from 'prop-types';
+import debounce from 'lodash/debounce';
 
 class SeeMore extends React.Component {
   panResponder = PanResponder.create({
@@ -14,6 +13,11 @@ class SeeMore extends React.Component {
     onPanResponderRelease: () => this.handleLinkReleased(),
   });
 
+  setDebouncedWidth;
+
+  // Map of containerWidth to truncationIndex so that we don't calculate it each time
+  containerWidthToTruncationIndexMap;
+
   constructor(props) {
     super(props);
 
@@ -21,37 +25,28 @@ class SeeMore extends React.Component {
       isLinkPressed: false,
       isShowingMore: false,
       truncationIndex: undefined,
-      containerWidth: undefined,
     };
+
+    this.setDebouncedWidth = debounce((e) => {
+      this.findTruncationIndex(e.nativeEvent.layout.width);
+    }, 100);
   }
 
-  componentDidMount() {
-    Dimensions.addEventListener('change', this.setContainerWidth);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.truncationIndex) {
-      return true;
-    }
-
-    return false;
-  }
-
-  componentWillUnmount() {
-    Dimensions.removeEventListener('change', this.setContainerWidth);
-  }
-
-  setContainerWidth = () => {
-    const { containerWidth } = this.state;
-    this.viewRef.measure((ox, oy, width) => {
-      if (width !== containerWidth) {
-        this.setState({ containerWidth: width }, () => this.findTruncationIndex());
-      }
-    });
+  onLayout = (e) => {
+    // e.persist() keeps the original synthetic event intact
+    e.persist();
+    this.setDebouncedWidth(e);
   };
 
-  findTruncationIndex = async () => {
-    const { containerWidth } = this.state;
+  findTruncationIndex = async (containerWidth) => {
+    if (
+      this.containerWidthToTruncationIndexMap
+      && this.containerWidthToTruncationIndexMap[containerWidth]
+    ) {
+      this.setState({ truncationIndex: this.containerWidthToTruncationIndexMap[containerWidth] });
+      return;
+    }
+
     const {
       children: text,
       style: { fontSize, fontFamily, fontWeight },
@@ -82,7 +77,7 @@ class SeeMore extends React.Component {
 
     const truncatedWidth = textWidthLimit - 2 * seeMoreTextWidth;
 
-    let truncationIndex = 0;
+    let index = 0;
     let start = 0;
     let end = text.length - 1;
 
@@ -96,7 +91,7 @@ class SeeMore extends React.Component {
         fontWeight,
       });
       if (Math.abs(truncatedWidth - partialWidth) <= 10) {
-        truncationIndex = middle;
+        index = middle;
         break;
       } else if (partialWidth > truncatedWidth) {
         end = middle - 1;
@@ -105,7 +100,14 @@ class SeeMore extends React.Component {
       }
     }
 
-    this.setState({ truncationIndex: Math.floor(truncationIndex) });
+    const truncationIndex = Math.floor(index);
+
+    // Map truncation index to width so that we don't calculate it again
+    this.containerWidthToTruncationIndexMap = {
+      ...this.containerWidthToTruncationIndexMap,
+      [containerWidth]: truncationIndex,
+    };
+    this.setState({ truncationIndex });
   };
 
   handleLinkPressed() {
@@ -138,18 +140,16 @@ class SeeMore extends React.Component {
       seeMoreText,
       seeLessText,
     } = this.props;
+    const isTruncable = truncationIndex < text.length;
 
-    if (truncationIndex) {
-      return (
-        <>
-          <View
-            ref={(ref) => {
-              this.viewRef = ref;
-            }}
-            onLayout={this.setContainerWidth}
-          />
-          <Text {...this.props} numberOfLines={isShowingMore ? undefined : numberOfLines}>
-            <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
+    return (
+      <Text
+        onLayout={isShowingMore ? undefined : this.onLayout}
+        numberOfLines={isShowingMore ? undefined : numberOfLines}
+      >
+        <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
+        {isTruncable ? (
+          <>
             {isShowingMore ? null : <Text {...this.props}>...</Text>}
             <Text
               {...this.props}
@@ -158,21 +158,9 @@ class SeeMore extends React.Component {
             >
               {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
             </Text>
-          </Text>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <View
-          ref={(ref) => {
-            this.viewRef = ref;
-          }}
-          onLayout={this.setContainerWidth}
-        />
-        <Text {...this.props}>{text}</Text>
-      </>
+          </>
+        ) : null}
+      </Text>
     );
   }
 }
