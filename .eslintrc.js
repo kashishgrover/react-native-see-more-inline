@@ -20,6 +20,7 @@ module.exports = {
   rules: {
     'react/jsx-props-no-spreading': ['off'],
     'react/jsx-filename-extension': ['off'],
-    'no-use-before-define': ['off']
+    'no-use-before-define': ['off'],
+    'operator-linebreak': ['off']
   },
 };

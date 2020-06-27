@@ -1,8 +1,7 @@
 import React from 'react';
 import { Text, PanResponder } from 'react-native';
-import reactNativeTextSize from 'react-native-text-size';
 import PropTypes from 'prop-types';
-import debounce from 'lodash/debounce';
+import SeeMoreUtil from './SeeMoreUtil';
 
 class SeeMore extends React.Component {
   panResponder = PanResponder.create({
@@ -13,9 +12,9 @@ class SeeMore extends React.Component {
     onPanResponderRelease: () => this.handleLinkReleased(),
   });
 
-  setDebouncedWidth;
-
-  // Map of containerWidth to truncationIndex so that we don't calculate it each time
+  /**
+   * Map of containerWidth and truncationIndex so that we don't calculate it each time
+   */
   containerWidthToTruncationIndexMap;
 
   constructor(props) {
@@ -26,89 +25,62 @@ class SeeMore extends React.Component {
       isShowingMore: false,
       truncationIndex: undefined,
     };
-
-    this.setDebouncedWidth = debounce((e) => {
-      this.findTruncationIndex(e.nativeEvent.layout.width);
-    }, 100);
   }
+
+  isExpanded = () => {
+    const { isShowingMore } = this.state;
+    return isShowingMore;
+  };
 
   onLayout = (e) => {
     // e.persist() keeps the original synthetic event intact
     e.persist();
-    this.setDebouncedWidth(e);
+    this.findAndUpdateTruncationIndex(e.nativeEvent.layout.width);
+  };
+
+  findAndUpdateTruncationIndex = async (containerWidth) => {
+    const truncationIndex = await this.findTruncationIndex(containerWidth);
+    this.setState({ truncationIndex });
   };
 
   findTruncationIndex = async (containerWidth) => {
     if (
-      this.containerWidthToTruncationIndexMap
-      && this.containerWidthToTruncationIndexMap[containerWidth]
+      this.containerWidthToTruncationIndexMap &&
+      this.containerWidthToTruncationIndexMap[containerWidth]
     ) {
-      this.setState({ truncationIndex: this.containerWidthToTruncationIndexMap[containerWidth] });
-      return;
+      return this.containerWidthToTruncationIndexMap[containerWidth];
     }
 
     const {
       children: text,
       style: { fontSize, fontFamily, fontWeight },
-      seeMoreText,
       numberOfLines,
+      seeMoreText,
     } = this.props;
 
-    const { width: textWidth } = await reactNativeTextSize.measure({
+    const truncationIndex = await SeeMoreUtil.getTruncationIndex(
       text,
+      numberOfLines,
       fontSize,
       fontFamily,
       fontWeight,
-    });
+      containerWidth,
+      seeMoreText,
+    );
 
-    const textWidthLimit = containerWidth * numberOfLines;
-
-    if (textWidth < textWidthLimit) {
-      this.setState({ truncationIndex: undefined });
-      return;
-    }
-
-    const { width: seeMoreTextWidth } = await reactNativeTextSize.measure({
-      text: ` ...${seeMoreText}`,
-      fontSize,
-      fontFamily,
-      fontWeight,
-    });
-
-    const truncatedWidth = textWidthLimit - 2 * seeMoreTextWidth;
-
-    let index = 0;
-    let start = 0;
-    let end = text.length - 1;
-
-    while (start <= end) {
-      const middle = start + (end - start) / 2;
-      // eslint-disable-next-line no-await-in-loop
-      const { width: partialWidth } = await reactNativeTextSize.measure({
-        text: text.slice(0, middle),
-        fontSize,
-        fontFamily,
-        fontWeight,
-      });
-      if (Math.abs(truncatedWidth - partialWidth) <= 10) {
-        index = middle;
-        break;
-      } else if (partialWidth > truncatedWidth) {
-        end = middle - 1;
-      } else {
-        start = middle + 1;
-      }
-    }
-
-    const truncationIndex = Math.floor(index);
-
-    // Map truncation index to width so that we don't calculate it again
     this.containerWidthToTruncationIndexMap = {
       ...this.containerWidthToTruncationIndexMap,
       [containerWidth]: truncationIndex,
     };
-    this.setState({ truncationIndex });
+
+    return truncationIndex;
   };
+
+  collapse() {
+    return new Promise((resolve) => {
+      this.setState({ isShowingMore: false }, () => resolve());
+    });
+  }
 
   handleLinkPressed() {
     this.setState({
@@ -130,11 +102,10 @@ class SeeMore extends React.Component {
     });
   }
 
-  render() {
+  renderSeeMoreSeeLessLink() {
     const { isLinkPressed, isShowingMore, truncationIndex } = this.state;
     const {
       children: text,
-      numberOfLines,
       linkColor,
       linkPressedColor,
       seeMoreText,
@@ -142,24 +113,36 @@ class SeeMore extends React.Component {
     } = this.props;
     const isTruncable = truncationIndex < text.length;
 
+    if (!isTruncable) {
+      return null;
+    }
+
+    return (
+      <Text
+        {...this.props}
+        {...this.panResponder.panHandlers}
+        style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
+      >
+        {isShowingMore ? null : <Text {...this.props}>...</Text>}
+        {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
+      </Text>
+    );
+  }
+
+  render() {
+    const { isShowingMore, truncationIndex } = this.state;
+    const { children: text, numberOfLines } = this.props;
+
     return (
       <Text
         onLayout={isShowingMore ? undefined : this.onLayout}
         numberOfLines={isShowingMore ? undefined : numberOfLines}
+        {...this.panResponder.panHandlers}
       >
-        <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
-        {isTruncable ? (
-          <>
-            {isShowingMore ? null : <Text {...this.props}>...</Text>}
-            <Text
-              {...this.props}
-              {...this.panResponder.panHandlers}
-              style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
-            >
-              {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
-            </Text>
-          </>
-        ) : null}
+        <Text {...this.props}>
+          {isShowingMore ? text : text.slice(0, truncationIndex)}
+        </Text>
+        {this.renderSeeMoreSeeLessLink()}
       </Text>
     );
   }
