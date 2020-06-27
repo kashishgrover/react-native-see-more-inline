@@ -35,6 +35,6 @@ import SeeMore from 'react-native-see-more-inline';
 ## Running the example
 1. `cd example`
 2. `yarn install`
-3. Terminal 1 - `yarn run start`
+3. Terminal 1 - `yarn start`
 4. Terminal 2 - `yarn run wml`
 5. Terminal 3 - `yarn run ios` / `yarn run android`
