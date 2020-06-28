@@ -12,6 +12,8 @@ Show a "read more", "see more", "read less", "see less" inline with your text in
 1. Install [`react-native-text-size` v4.0.0-rc.1](https://github.com/aMarCruz/react-native-text-size)
 2. `yarn add react-native-see-more-inline` or `npm install --save-dev react-native-see-more-inline`
 
+>Note: This package will not work with expo managed projects. The dependency `react-native-text-size` links natively. Till we have a dependency on this package to measure the text width, this limitation will remain.
+
 ## Usage
 ```
 import SeeMore from 'react-native-see-more-inline';
