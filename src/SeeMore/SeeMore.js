@@ -110,6 +110,7 @@ class SeeMore extends React.Component {
       linkPressedColor,
       seeMoreText,
       seeLessText,
+      style,
     } = this.props;
     const isTruncable = truncationIndex < text.length;
 
@@ -121,7 +122,7 @@ class SeeMore extends React.Component {
       <Text
         {...this.props}
         {...this.panResponder.panHandlers}
-        style={{ color: isLinkPressed ? linkPressedColor : linkColor }}
+        style={[style, { color: isLinkPressed ? linkPressedColor : linkColor }]}
       >
         {isShowingMore ? null : <Text {...this.props}>...</Text>}
         {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
