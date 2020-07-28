@@ -16,13 +16,25 @@
     "binary search"
   ],
   "scripts": {
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "preset": "@testing-library/react-native",
+    "transform": {
+      "^.+\\.(js)$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(jest-)?react-native)"
+    ]
   },
   "dependencies": {
     "lodash": "^4.17.19",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^5.0.3",
     "babel-eslint": "^10.1.0",
     "commitizen": "^4.0.3",
     "cz-conventional-changelog": "^3.1.0",
@@ -34,11 +46,12 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "husky": "^4.2.3",
-    "metro-react-native-babel-preset": "^0.58.0",
+    "jest": "^26.1.0",
     "prettier-eslint": "^9.0.1",
     "react": "^16.9.0",
     "react-native": "^0.61.5",
-    "react-native-text-size": "^4.0.0-rc.1"
+    "react-native-text-size": "^4.0.0-rc.1",
+    "react-test-renderer": "^16.13.1"
   },
   "peerDependencies": {
     "react": "*",

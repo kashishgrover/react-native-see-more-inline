@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SeeMore renders small text correctly 1`] = `
+<View
+  pointerEvents="box-none"
+  style={
+    Object {
+      "flex": 1,
+    }
+  }
+>
+  <View
+    collapsable={true}
+    pointerEvents="box-none"
+    style={
+      Object {
+        "flex": 1,
+      }
+    }
+  >
+    <Text
+      numberOfLines={2}
+      testID="SeeMore"
+    >
+      <Text
+        linkColor="#2E75F0"
+        linkPressedColor="#163772"
+        numberOfLines={2}
+        seeLessText="see less"
+        seeMoreText="see more"
+        style={
+          Object {
+            "fontFamily": undefined,
+            "fontSize": 14,
+            "fontWeight": "300",
+          }
+        }
+      >
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+      </Text>
+    </Text>
+  </View>
+</View>
+`;

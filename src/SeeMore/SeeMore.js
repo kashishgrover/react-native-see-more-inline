@@ -136,6 +136,7 @@ class SeeMore extends React.Component {
 
     return (
       <Text
+        testID="SeeMore"
         onLayout={isShowingMore ? undefined : this.onLayout}
         numberOfLines={isShowingMore ? undefined : numberOfLines}
         {...this.panResponder.panHandlers}
