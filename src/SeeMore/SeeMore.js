@@ -120,17 +120,27 @@ class SeeMore extends React.Component {
       return null;
     }
 
+    const SeeLessText =
+      typeof seeLessText === 'string' ? (
+        <Text style={seeLessTextStyle}> {seeLessText}</Text>
+      ) : (
+        seeLessText
+      );
+
+    const SeeMoreText =
+      typeof seeMoreText === 'string' ? (
+        <Text style={seeMoreTextStyle}> {seeMoreText}</Text>
+      ) : (
+        seeMoreText
+      );
+
     return (
       <Text
         {...this.props}
         {...this.panResponder.panHandlers}
         style={[style, { color: isLinkPressed ? linkPressedColor : linkColor }]}>
         {isShowingMore ? null : <Text {...this.props}>...</Text>}
-        {isShowingMore ? (
-          <Text style={seeLessTextStyle}>{seeLessText}</Text>
-        ) : (
-          <Text style={seeMoreTextStyle}>{seeMoreText}</Text>
-        )}
+        {isShowingMore ? SeeLessText : SeeMoreText}
       </Text>
     );
   }
@@ -141,9 +151,11 @@ class SeeMore extends React.Component {
 
     return (
       <Text
+        testID="SeeMore"
         onLayout={isShowingMore ? undefined : this.onLayout}
         numberOfLines={isShowingMore ? undefined : numberOfLines}
-        {...this.panResponder.panHandlers}>
+        {...this.panResponder.panHandlers}
+      >
         <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
         {this.renderSeeMoreSeeLessLink()}
       </Text>
@@ -158,8 +170,8 @@ SeeMore.propTypes = {
   linkPressedColor: PropTypes.string,
   seeMoreTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   seeLessTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  seeMoreText: PropTypes.string,
-  seeLessText: PropTypes.string,
+  seeMoreText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  seeLessText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
