@@ -108,6 +108,8 @@ class SeeMore extends React.Component {
       children: text,
       linkColor,
       linkPressedColor,
+      seeMoreTextStyle,
+      seeLessTextStyle,
       seeMoreText,
       seeLessText,
       style,
@@ -118,14 +120,27 @@ class SeeMore extends React.Component {
       return null;
     }
 
+    const SeeLessText =
+      typeof seeLessText === 'string' ? (
+        <Text style={seeLessTextStyle}> {seeLessText}</Text>
+      ) : (
+        seeLessText
+      );
+
+    const SeeMoreText =
+      typeof seeMoreText === 'string' ? (
+        <Text style={seeMoreTextStyle}> {seeMoreText}</Text>
+      ) : (
+        seeMoreText
+      );
+
     return (
       <Text
         {...this.props}
         {...this.panResponder.panHandlers}
-        style={[style, { color: isLinkPressed ? linkPressedColor : linkColor }]}
-      >
+        style={[style, { color: isLinkPressed ? linkPressedColor : linkColor }]}>
         {isShowingMore ? null : <Text {...this.props}>...</Text>}
-        {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
+        {isShowingMore ? SeeLessText : SeeMoreText}
       </Text>
     );
   }
@@ -141,9 +156,7 @@ class SeeMore extends React.Component {
         numberOfLines={isShowingMore ? undefined : numberOfLines}
         {...this.panResponder.panHandlers}
       >
-        <Text {...this.props}>
-          {isShowingMore ? text : text.slice(0, truncationIndex)}
-        </Text>
+        <Text {...this.props}>{isShowingMore ? text : text.slice(0, truncationIndex)}</Text>
         {this.renderSeeMoreSeeLessLink()}
       </Text>
     );
@@ -155,8 +168,10 @@ SeeMore.propTypes = {
   numberOfLines: PropTypes.number.isRequired,
   linkColor: PropTypes.string,
   linkPressedColor: PropTypes.string,
-  seeMoreText: PropTypes.string,
-  seeLessText: PropTypes.string,
+  seeMoreTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  seeLessTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  seeMoreText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  seeLessText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
