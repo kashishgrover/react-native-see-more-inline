@@ -23,11 +23,11 @@ describe('SeeMore', () => {
       .spyOn(SeeMoreUtil, 'getTruncationIndex')
       .mockImplementation(() => new Promise((a) => a(truncationIndex)));
 
-    const { getByTestId, getByText } = render(
+    const baseElement = render(
       <SeeMore numberOfLines={2}>{text}</SeeMore>,
     );
 
-    fireEvent.layout(getByTestId('SeeMore'), {
+    fireEvent.layout(baseElement.getByTestId('SeeMore'), {
       nativeEvent: {
         layout: {
           width: 200,
@@ -37,8 +37,9 @@ describe('SeeMore', () => {
     });
 
     await wait(() => {
-      expect(getByText(/see more/)).toBeTruthy();
-      expect(getByText(text.slice(0, truncationIndex))).toBeTruthy();
+      expect(baseElement.getByText(/see more/)).toBeTruthy();
+      expect(baseElement.getByText(text.slice(0, truncationIndex))).toBeTruthy();
+      expect(baseElement).toMatchSnapshot();
     });
   });
 });
