@@ -21,6 +21,10 @@ import SeeMore from 'react-native-see-more-inline';
 <SeeMore numberOfLines={2}>
   {VERY_LARGE_TEXT}
 </SeeMore>
+
+<SeeMore numberOfLines={2} linkStyle={{ fontWeight: '500' }}>
+  {VERY_LARGE_TEXT}
+</SeeMore>
 ```
 
 ### Props
@@ -29,6 +33,7 @@ import SeeMore from 'react-native-see-more-inline';
 | numberOfLines    | -                                                            | yes | number       |
 | linkColor        | '#2E75F0'                                                    | no  | string       |
 | linkPressedColor | '#163772'                                                    | no  | string       |
+| linkStyle        | undefined                                                    | no  | array/object |
 | seeMoreText      | 'see more'                                                   | no  | string       |
 | seeLessText      | 'see less'                                                   | no  | string       |
 | style            | `{ fontFamily: undefined, fontSize: 14, fontWeight: '300' }` | no  | array/object |
