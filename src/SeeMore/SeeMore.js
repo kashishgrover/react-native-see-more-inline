@@ -108,11 +108,9 @@ class SeeMore extends React.Component {
       children: text,
       linkColor,
       linkPressedColor,
-      seeMoreTextStyle,
-      seeLessTextStyle,
+      linkStyle,
       seeMoreText,
       seeLessText,
-      style,
     } = this.props;
     const isTruncable = truncationIndex < text.length;
 
@@ -120,27 +118,12 @@ class SeeMore extends React.Component {
       return null;
     }
 
-    const SeeLessText =
-      typeof seeLessText === 'string' ? (
-        <Text style={seeLessTextStyle}> {seeLessText}</Text>
-      ) : (
-        seeLessText
-      );
-
-    const SeeMoreText =
-      typeof seeMoreText === 'string' ? (
-        <Text style={seeMoreTextStyle}> {seeMoreText}</Text>
-      ) : (
-        seeMoreText
-      );
-
     return (
-      <Text
-        {...this.props}
-        {...this.panResponder.panHandlers}
-        style={[style, { color: isLinkPressed ? linkPressedColor : linkColor }]}>
+      <Text {...this.props} {...this.panResponder.panHandlers}>
         {isShowingMore ? null : <Text {...this.props}>...</Text>}
-        {isShowingMore ? SeeLessText : SeeMoreText}
+        <Text style={[linkStyle, { color: isLinkPressed ? linkPressedColor : linkColor }]}>
+          {isShowingMore ? ` ${seeLessText}` : ` ${seeMoreText}`}
+        </Text>
       </Text>
     );
   }
@@ -168,10 +151,9 @@ SeeMore.propTypes = {
   numberOfLines: PropTypes.number.isRequired,
   linkColor: PropTypes.string,
   linkPressedColor: PropTypes.string,
-  seeMoreTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  seeLessTextStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  seeMoreText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-  seeLessText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  linkStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  seeMoreText: PropTypes.string,
+  seeLessText: PropTypes.string,
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
 };
 
@@ -185,6 +167,7 @@ SeeMore.defaultProps = {
     fontSize: 14,
     fontWeight: '300',
   },
+  linkStyle: undefined,
 };
 
 export default SeeMore;
