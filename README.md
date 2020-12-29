@@ -1,3 +1,7 @@
+
+![npm](https://img.shields.io/npm/dm/react-native-see-more-inline?style=plastic)
+![npm](https://img.shields.io/npm/dt/react-native-see-more-inline?style=plastic)
+
 # react-native-see-more-inline
 
 Show a "read more", "see more", "read less", "see less" inline with your text in React Native
