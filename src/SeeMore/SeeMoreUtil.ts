@@ -1,4 +1,4 @@
-import { PixelRatio } from 'react-native';
+import { PixelRatio, TextStyle } from 'react-native';
 import reactNativeTextSize from 'react-native-text-size';
 
 /**
@@ -10,24 +10,20 @@ const DIFFERENCE_THRESHOLD = 10;
 /**
  * Finds the point where the text will be truncated, leaving enough space to show
  * the "read more" link
- *
- * @param text {string} Text for which you need to find the truncation index
- * @param numberOfLines {number} Number of lines being displayed
- * @param fontSize {number} Font size
- * @param fontFamily {string} Font family
- * @param fontWeight {string} Font weight
- * @param containerWidth {number} Width of the container in which the text will be contained
- * @param seeMoreText {string} See more text
  */
-async function getTruncationIndex(
-  text,
-  numberOfLines,
-  fontSize,
-  fontFamily,
-  fontWeight,
-  containerWidth,
-  seeMoreText,
-) {
+export async function getTruncationIndex(
+  text: string,
+  numberOfLines: number,
+  style: TextStyle,
+  containerWidth: number,
+  seeMoreText: string,
+): Promise<number> {
+  const { fontSize, fontFamily, fontWeight } = style;
+
+  if (!fontSize || !fontFamily || !fontWeight) {
+    return 0;
+  }
+
   const scaledFontSize = Math.round(fontSize * PixelRatio.getFontScale());
 
   const { width: totalTextWidth } = await reactNativeTextSize.measure({
@@ -44,7 +40,7 @@ async function getTruncationIndex(
   const widthLimit = (containerWidth - 10) * numberOfLines;
 
   if (totalTextWidth < widthLimit) {
-    return undefined;
+    return 0;
   }
 
   let index = 0;
@@ -82,7 +78,3 @@ async function getTruncationIndex(
 
   return truncationIndex;
 }
-
-export default {
-  getTruncationIndex,
-};

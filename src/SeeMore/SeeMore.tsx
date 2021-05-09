@@ -1,9 +1,38 @@
-import React from 'react';
-import { Text, PanResponder } from 'react-native';
-import PropTypes from 'prop-types';
-import SeeMoreUtil from './SeeMoreUtil';
+import React, { Component, ReactElement } from 'react';
+import { Text, PanResponder, TextStyle, LayoutChangeEvent } from 'react-native';
+import { getTruncationIndex } from './SeeMoreUtil';
 
-class SeeMore extends React.Component {
+interface Props {
+  children: string;
+  numberOfLines: number;
+  linkColor: string;
+  linkPressedColor: string;
+  seeMoreText: string;
+  seeLessText: string;
+  linkStyle: TextStyle;
+  style: TextStyle;
+}
+
+interface State {
+  isLinkPressed: boolean;
+  isShowingMore: boolean;
+  truncationIndex: number;
+}
+
+class SeeMore extends Component<Props, State> {
+  static defaultProps = {
+    linkColor: '#2E75F0',
+    linkPressedColor: '#163772',
+    seeMoreText: 'see more',
+    seeLessText: 'see less',
+    style: {
+      fontFamily: undefined,
+      fontSize: 14,
+      fontWeight: '300',
+    },
+    linkStyle: undefined,
+  };
+
   panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderTerminationRequest: () => true,
@@ -15,35 +44,57 @@ class SeeMore extends React.Component {
   /**
    * Map of containerWidth and truncationIndex so that we don't calculate it each time
    */
-  containerWidthToTruncationIndexMap;
+  containerWidthToTruncationIndexMap: { [containerWidth: number]: number } | undefined;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       isLinkPressed: false,
       isShowingMore: false,
-      truncationIndex: undefined,
+      truncationIndex: 0,
     };
+
+    this.containerWidthToTruncationIndexMap = undefined;
   }
 
-  isExpanded = () => {
+  handleLinkPressed(): void {
+    this.setState({
+      isLinkPressed: true,
+    });
+  }
+
+  handleLinkTerminated(): void {
+    this.setState({
+      isLinkPressed: false,
+    });
+  }
+
+  handleLinkReleased(): void {
     const { isShowingMore } = this.state;
-    return isShowingMore;
+    this.setState({
+      isLinkPressed: false,
+      isShowingMore: !isShowingMore,
+    });
+  }
+
+  findAndUpdateTruncationIndex = async (containerWidth: number): Promise<void> => {
+    const truncationIndex = await this.findTruncationIndex(containerWidth);
+    this.setState({ truncationIndex });
   };
 
-  onLayout = (e) => {
+  onLayout = (e: LayoutChangeEvent): void => {
     // e.persist() keeps the original synthetic event intact
     e.persist();
     this.findAndUpdateTruncationIndex(e.nativeEvent.layout.width);
   };
 
-  findAndUpdateTruncationIndex = async (containerWidth) => {
-    const truncationIndex = await this.findTruncationIndex(containerWidth);
-    this.setState({ truncationIndex });
+  isExpanded = (): boolean => {
+    const { isShowingMore } = this.state;
+    return isShowingMore;
   };
 
-  findTruncationIndex = async (containerWidth) => {
+  findTruncationIndex = async (containerWidth: number): Promise<number> => {
     if (
       this.containerWidthToTruncationIndexMap &&
       this.containerWidthToTruncationIndexMap[containerWidth]
@@ -53,17 +104,15 @@ class SeeMore extends React.Component {
 
     const {
       children: text,
-      style: { fontSize, fontFamily, fontWeight },
+      style,
       numberOfLines,
       seeMoreText,
     } = this.props;
 
-    const truncationIndex = await SeeMoreUtil.getTruncationIndex(
+    const truncationIndex = await getTruncationIndex(
       text,
       numberOfLines,
-      fontSize,
-      fontFamily,
-      fontWeight,
+      style,
       containerWidth,
       seeMoreText,
     );
@@ -76,33 +125,13 @@ class SeeMore extends React.Component {
     return truncationIndex;
   };
 
-  collapse() {
+  collapse(): Promise<void> {
     return new Promise((resolve) => {
       this.setState({ isShowingMore: false }, () => resolve());
     });
   }
 
-  handleLinkPressed() {
-    this.setState({
-      isLinkPressed: true,
-    });
-  }
-
-  handleLinkTerminated() {
-    this.setState({
-      isLinkPressed: false,
-    });
-  }
-
-  handleLinkReleased() {
-    const { isShowingMore } = this.state;
-    this.setState({
-      isLinkPressed: false,
-      isShowingMore: !isShowingMore,
-    });
-  }
-
-  renderSeeMoreSeeLessLink() {
+  renderSeeMoreSeeLessLink(): ReactElement | null {
     const { isLinkPressed, isShowingMore, truncationIndex } = this.state;
     const {
       children: text,
@@ -112,6 +141,7 @@ class SeeMore extends React.Component {
       seeMoreText,
       seeLessText,
     } = this.props;
+
     const isTruncable = truncationIndex < text.length;
 
     if (!isTruncable) {
@@ -128,7 +158,7 @@ class SeeMore extends React.Component {
     );
   }
 
-  render() {
+  render(): ReactElement {
     const { isShowingMore, truncationIndex } = this.state;
     const { children: text, numberOfLines } = this.props;
 
@@ -145,29 +175,5 @@ class SeeMore extends React.Component {
     );
   }
 }
-
-SeeMore.propTypes = {
-  children: PropTypes.string.isRequired,
-  numberOfLines: PropTypes.number.isRequired,
-  linkColor: PropTypes.string,
-  linkPressedColor: PropTypes.string,
-  linkStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  seeMoreText: PropTypes.string,
-  seeLessText: PropTypes.string,
-  style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-};
-
-SeeMore.defaultProps = {
-  linkColor: '#2E75F0',
-  linkPressedColor: '#163772',
-  seeMoreText: 'see more',
-  seeLessText: 'see less',
-  style: {
-    fontFamily: undefined,
-    fontSize: 14,
-    fontWeight: '300',
-  },
-  linkStyle: undefined,
-};
 
 export default SeeMore;
